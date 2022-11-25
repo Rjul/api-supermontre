@@ -3,11 +3,9 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\NewCategoryResquest;
-use App\Http\Requests\NewProductRequest;
+use App\Http\Requests\Category\NewCategoryResquest;
+use App\Http\Requests\Category\UpdateCategoryResquest;
 use App\Models\Category;
-use App\Models\Product;
-use Illuminate\Http\Client\Response;
 use Illuminate\Http\Request;
 
 class CategoryController extends Controller
@@ -58,13 +56,13 @@ class CategoryController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\JsonResponse
      */
-    public function update(Category $category, Request $request)
+    public function update(Category $category, UpdateCategoryResquest $request)
     {
         $category->fill($request->all())->save();
 
         return response()->json([
             'status' => 'ok',
-            'product' => $category->toArray()
+            'category' => $category->load('products')->toArray()
         ]);
     }
 

@@ -1,13 +1,12 @@
 <?php
 
-namespace App\Http\Requests;
+namespace App\Http\Requests\Category;
 
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
-use Illuminate\Validation\ValidationException;
 
-class NewProductRequest extends FormRequest
+class UpdateCategoryResquest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -27,19 +26,8 @@ class NewProductRequest extends FormRequest
     public function rules()
     {
         return [
-            'title' => ['required', 'max:255'],
-            'description' => ['required', 'max:2550'],
-            'image' => [
-                'required', 'file',
-                //'mimes:png',
-                // max file size in kB
-                //'max:1024',
-                // for images, specify dimension constraints
-                //'dimensions:min_width=500,max_width=1500'
-            ],
-            'price' => ['required', 'integer'],
-            'quantity' => ['required', 'integer'],
-            'category_id' => ['required', 'exists:App\Models\Category,id'],
+            'title' => ['max:255'],
+            'description' => ['max:2550'],
         ];
     }
 

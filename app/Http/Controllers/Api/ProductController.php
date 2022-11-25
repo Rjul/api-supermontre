@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\NewProductRequest;
+use App\Http\Requests\Product\NewProductRequest;
+use App\Http\Requests\Product\UpdateProductResquest;
 use App\Models\Product;
-use Illuminate\Http\Client\Response;
 use Illuminate\Http\Request;
 
 class ProductController extends Controller
@@ -30,6 +30,7 @@ class ProductController extends Controller
     {
         $imageName = time().'_'.$request->image->getClientOriginalName();
         $imageUrl = '/storage/'.$request->file('image')->storeAs('uploads', $imageName, 'public');
+
         $product = (new Product())->fill($request->post());
         $product->imageUrl = $imageUrl;
         $product->save();
@@ -59,19 +60,19 @@ class ProductController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\JsonResponse
      */
-    public function update(Product $product, Request $request)
+    public function update(Product $product, UpdateProductResquest $request)
     {
         if ($request->hasFile('image')) {
             $imageName = time().'_'.$request->image->getClientOriginalName();
             $imageUrl = '/storage/'.$request->file('image')->storeAs('uploads', $imageName, 'public');
-            $product = (new Product())->fill($request->post());
             $product->imageUrl = $imageUrl;
         }
+        dd($request->all());
         $product->fill($request->all())->save();
 
         return response()->json([
             'status' => 'ok',
-            'product' => $product->toArray()
+            'product' => $product->load('category')->toArray()
         ]);
     }
 

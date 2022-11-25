@@ -1,18 +1,17 @@
 <?php
 
-namespace App\Http\Requests;
+namespace App\Http\Requests\Product;
 
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
-class NewCategoryResquest extends FormRequest
-{
-    /**
-     * Determine if the user is authorized to make this request.
-     *
-     * @return bool
-     */
+class UpdateProductResquest extends FormRequest
+{    /**
+ * Determine if the user is authorized to make this request.
+ *
+ * @return bool
+ */
     public function authorize()
     {
         return true;
@@ -26,8 +25,14 @@ class NewCategoryResquest extends FormRequest
     public function rules()
     {
         return [
-            'title' => ['required', 'max:255'],
-            'description' => ['required', 'max:2550'],
+            'title' => ['max:255'],
+            'description' => ['max:2550'],
+            'image' => [
+                'file',
+            ],
+            'price' => ['integer'],
+            'quantity' => ['integer'],
+            'category_id' => ['exists:App\Models\Category,id'],
         ];
     }
 
