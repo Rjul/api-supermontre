@@ -54,4 +54,8 @@ Route::controller(\App\Http\Controllers\Api\CategoryController::class)
         ->name('categories.update');
 });
 
+Route::apiResources([
+    'users' => \App\Http\Controllers\Api\UserController::class
+]);
+
 

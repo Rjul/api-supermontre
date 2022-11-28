@@ -3,13 +3,15 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Category\NewCategoryResquest;
-use App\Http\Requests\Category\UpdateCategoryResquest;
-use App\Models\Category;
+use App\Http\Requests\User\CreateUserResquest;
+use App\Http\Requests\User\UpdateUserResquest;
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 
-class CategoryController extends Controller
+class UserController extends Controller
 {
+
     /**
      * Display a listing of the resource.
      *
@@ -17,7 +19,9 @@ class CategoryController extends Controller
      */
     public function index()
     {
-        return response()->json(Category::all()->toArray());
+        return response()->json([
+           User::all()->toArray()
+        ]);
     }
 
     /**
@@ -26,10 +30,9 @@ class CategoryController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function store(NewCategoryResquest $request)
+    public function store(CreateUserResquest $request)
     {
-        $product = (new Category())->fill($request->validated());
-        $product->save();
+        (new User)->fill($request->validated())->save();
         return response()->json([
             'status' => 'ok'
         ]);
@@ -41,12 +44,11 @@ class CategoryController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\JsonResponse
      */
-    public function show(Category $category)
+    public function show(User $user)
     {
-        $category->load('products');
-        return response()->json(
-            $category->toArray()
-        );
+        return response()->json([
+            $user->toArray()
+        ]);
     }
 
     /**
@@ -56,13 +58,15 @@ class CategoryController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\JsonResponse
      */
-    public function update(Category $category, UpdateCategoryResquest $request)
+    public function update(UpdateUserResquest $request, User $user)
     {
-        $category->forceFill($request->validated())->save();
-
+        $user->forceFill($request->validated());
+        if ($request->has('password')) {
+            $user->password = Hash::make($request->get('password'));
+        }
+        $user->save();
         return response()->json([
-            'status' => 'ok',
-            'category' => $category->load('products')->toArray()
+            'status' => 'ok'
         ]);
     }
 
@@ -72,12 +76,15 @@ class CategoryController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\JsonResponse
      */
-    public function destroy(Category $category)
+    public function destroy(User $user)
     {
-        $category->deleteOrFail();
-
-        return \response()->json([
-            'status' => 'ok'
-        ]);
+        if ($user->deleteOrFail()) {
+            return response()->json([
+                'status' => 'ok'
+            ]);
+        }
+        return response()->json([
+            'status' => false
+        ], 500);
     }
 }

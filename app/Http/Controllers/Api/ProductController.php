@@ -31,7 +31,7 @@ class ProductController extends Controller
         $imageName = time().'_'.$request->image->getClientOriginalName();
         $imageUrl = '/storage/'.$request->file('image')->storeAs('uploads', $imageName, 'public');
 
-        $product = (new Product())->fill($request->post());
+        $product = (new Product())->fill($request->validated());
         $product->imageUrl = $imageUrl;
         $product->save();
         return response()->json([
@@ -67,8 +67,7 @@ class ProductController extends Controller
             $imageUrl = '/storage/'.$request->file('image')->storeAs('uploads', $imageName, 'public');
             $product->imageUrl = $imageUrl;
         }
-        dd($request->all());
-        $product->fill($request->all())->save();
+        $product->forceFill($request->validated())->save();
 
         return response()->json([
             'status' => 'ok',
