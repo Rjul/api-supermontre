@@ -33,7 +33,7 @@ class ProductController extends Controller
 
         $product = (new Product())->fill($request->validated());
         $product->imageUrl = $imageUrl;
-        $product->save();
+        $product->saveOrFail();
         return response()->json([
             'status' => 'ok'
         ]);
@@ -67,7 +67,7 @@ class ProductController extends Controller
             $imageUrl = '/storage/'.$request->file('image')->storeAs('uploads', $imageName, 'public');
             $product->imageUrl = $imageUrl;
         }
-        $product->forceFill($request->validated())->save();
+        $product->forceFill($request->validated())->updateOrFail();
 
         return response()->json([
             'status' => 'ok',

@@ -3,13 +3,15 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\ProductUser\ProductUserRequest;
 use App\Http\Requests\User\CreateUserResquest;
 use App\Http\Requests\User\UpdateUserResquest;
+use App\Models\ProductUser;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
-class UserController extends Controller
+class ProductUserController extends Controller
 {
 
     /**
@@ -20,7 +22,7 @@ class UserController extends Controller
     public function index()
     {
         return response()->json([
-           User::all()->toArray()
+           ProductUser::ownedBy(User::find(3))->get()->toArray()
         ]);
     }
 
@@ -30,9 +32,9 @@ class UserController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function store(CreateUserResquest $request)
+    public function store(ProductUserRequest $request)
     {
-        (new User)->fill($request->validated())->saveOrFail();
+        (new ProductUser())->fill($request->validated())->saveOrFail();
         return response()->json([
             'status' => 'ok'
         ]);
@@ -44,10 +46,10 @@ class UserController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\JsonResponse
      */
-    public function show(User $user)
+    public function show(ProductUser $productUser)
     {
         return response()->json([
-            $user->toArray()
+            $productUser->toArray()
         ]);
     }
 
@@ -58,13 +60,9 @@ class UserController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\JsonResponse
      */
-    public function update(UpdateUserResquest $request, User $user)
+    public function update(ProductUserRequest $request, ProductUser $productUser)
     {
-        $user->forceFill($request->validated());
-        if ($request->has('password')) {
-            $user->password = Hash::make($request->get('password'));
-        }
-        $user->updateOrFail();
+        $productUser->forceFill($request->validated())->updateOrFail();
         return response()->json([
             'status' => 'ok'
         ]);
@@ -76,11 +74,12 @@ class UserController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\JsonResponse
      */
-    public function destroy(User $user)
+    public function destroy(ProductUser $productUser)
     {
-        $user->deleteOrFail();
+        $productUser->deleteOrFail();
         return response()->json([
             'status' => 'ok'
         ]);
+
     }
 }

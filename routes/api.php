@@ -55,7 +55,8 @@ Route::controller(\App\Http\Controllers\Api\CategoryController::class)
 });
 
 Route::apiResources([
-    'users' => \App\Http\Controllers\Api\UserController::class
+    'users' => \App\Http\Controllers\Api\UserController::class,
+    'product_user' => \App\Http\Controllers\Api\ProductUserController::class,
 ]);
 
 

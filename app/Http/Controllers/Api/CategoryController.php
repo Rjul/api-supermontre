@@ -29,7 +29,7 @@ class CategoryController extends Controller
     public function store(NewCategoryResquest $request)
     {
         $product = (new Category())->fill($request->validated());
-        $product->save();
+        $product->saveOrFail();
         return response()->json([
             'status' => 'ok'
         ]);
@@ -58,7 +58,7 @@ class CategoryController extends Controller
      */
     public function update(Category $category, UpdateCategoryResquest $request)
     {
-        $category->forceFill($request->validated())->save();
+        $category->forceFill($request->validated())->updateOrFail();
 
         return response()->json([
             'status' => 'ok',

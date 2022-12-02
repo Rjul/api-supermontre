@@ -16,7 +16,9 @@ class Product extends Model
     public function category() {
         return $this->belongsTo(Category::class);
     }
-
+    public function users() {
+        return $this->belongsToMany(User::class);
+    }
     /**
      * The attributes that are mass assignable.
      *
