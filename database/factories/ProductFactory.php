@@ -21,7 +21,7 @@ class ProductFactory extends Factory
         return [
             'title'                   => fake()->name(),
             'description'             => fake()->realText(200),
-            'imageUrl'                => fake()->image(),
+            'imageUrl'                => fake()->imageUrl(),
             'price'                   => fake()->numberBetween(4456, 24000),
             'quantity'                => fake()->numberBetween(1, 24),
             'category_id'             => Category::all()->random()->id,

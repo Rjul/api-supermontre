@@ -28,6 +28,13 @@ class ProductController extends Controller
      */
     public function store(NewProductRequest $request)
     {
+        if ($request->user === null || $request->user()->cannot('create')) {
+            return response()->json([
+                'status' => 'fail',
+                'message' => 'You are not authorized to create a product'
+            ]);
+        }
+
         $imageName = time().'_'.$request->image->getClientOriginalName();
         $imageUrl = '/storage/'.$request->file('image')->storeAs('uploads', $imageName, 'public');
 
@@ -45,8 +52,12 @@ class ProductController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\JsonResponse
      */
-    public function show(Product $product)
+    public function show(Request $request, Product $product)
     {
+        if ($request->user()->cannot('view', $product)) {
+            // code for future implementation
+            abort(403);
+        }
         $product->load('category');
         return response()->json(
             $product->toArray()
@@ -62,11 +73,16 @@ class ProductController extends Controller
      */
     public function update(Product $product, UpdateProductResquest $request)
     {
+        if (is_null($request->user()) || $request->user()->cannot('update', $product)) {
+            abort(403);
+        }
+
         if ($request->hasFile('image')) {
             $imageName = time().'_'.$request->image->getClientOriginalName();
             $imageUrl = '/storage/'.$request->file('image')->storeAs('uploads', $imageName, 'public');
             $product->imageUrl = $imageUrl;
         }
+
         $product->forceFill($request->validated())->updateOrFail();
 
         return response()->json([
@@ -81,8 +97,17 @@ class ProductController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\JsonResponse
      */
-    public function destroy(Product $product)
+    public function destroy(Request $request, Product $product)
     {
+        if ($request->user()->cannot('delete', $product)) {
+            abort(403);
+        }
+
+        if (!$product->users->isEmpty()) {
+            $product->users->each(function ($user) {
+                $user->pivot->delete();
+            });
+        }
         $product->deleteOrFail();
 
         return \response()->json([

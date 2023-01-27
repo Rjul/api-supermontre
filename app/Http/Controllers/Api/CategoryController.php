@@ -74,6 +74,12 @@ class CategoryController extends Controller
      */
     public function destroy(Category $category)
     {
+        if (!$category->products->isEmpty()) {
+            return \response()->json([
+                'status' => 'fail',
+                'message' => 'Category has products, can not delete'
+            ], 500);
+        }
         $category->deleteOrFail();
 
         return \response()->json([

@@ -21,9 +21,9 @@ class ProductUserController extends Controller
      */
     public function index()
     {
-        return response()->json([
-           ProductUser::ownedBy(User::find(3))->get()->toArray()
-        ]);
+        return response()->json(
+           ProductUser::ownedBy(User::find(3))->with('product')->get()->toArray()
+        );
     }
 
     /**
@@ -48,9 +48,9 @@ class ProductUserController extends Controller
      */
     public function show(ProductUser $productUser)
     {
-        return response()->json([
+        return response()->json(
             $productUser->toArray()
-        ]);
+        );
     }
 
     /**
