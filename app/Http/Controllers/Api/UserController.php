@@ -17,8 +17,14 @@ class UserController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function index()
+    public function index(Request $request)
     {
+        if ($request->user() === null || $request->user()->cannot('viewAny', new User() )) {
+            return response()->json([
+                'status' => 'fail',
+                'message' => 'You can not view any user'
+            ], 401);
+        }
         return response()->json(
            User::all()->toArray()
         );
@@ -32,10 +38,16 @@ class UserController extends Controller
      */
     public function store(CreateUserResquest $request)
     {
+        if ($request->user() === null || $request->user()->cannot('create', new User() )) {
+            return response()->json([
+                'status' => 'fail',
+                'message' => 'You can not create user'
+            ], 401);
+        }
         (new User)->fill($request->validated())->saveOrFail();
         return response()->json([
             'status' => 'ok'
-        ]);
+        ], 201);
     }
 
     /**
@@ -44,8 +56,14 @@ class UserController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\JsonResponse
      */
-    public function show(User $user)
+    public function show(Request $request, User $user)
     {
+        if ($request->user() === null || $request->user()->cannot('view', $user )) {
+            return response()->json([
+                'status' => 'fail',
+                'message' => 'You can not view this user'
+            ], 401);
+        }
         return response()->json([
             $user->toArray()
         ]);
@@ -60,6 +78,12 @@ class UserController extends Controller
      */
     public function update(UpdateUserResquest $request, User $user)
     {
+        if ($request->user() === null || $request->user()->cannot('update', $user )) {
+            return response()->json([
+                'status' => 'fail',
+                'message' => 'You can not update this user'
+            ], 401);
+        }
         $user->forceFill($request->validated());
         if ($request->has('password')) {
             $user->password = Hash::make($request->get('password'));
@@ -76,11 +100,17 @@ class UserController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\JsonResponse
      */
-    public function destroy(User $user)
+    public function destroy(Request $request, User $user)
     {
+        if ($request->user() === null || $request->user()->cannot('delete', $user )) {
+            return response()->json([
+                'status' => 'fail',
+                'message' => 'You can not delete this user'
+            ], 401);
+        }
         $user->deleteOrFail();
         return response()->json([
             'status' => 'ok'
-        ]);
+        ], 204);
     }
 }

@@ -48,9 +48,24 @@ class User extends Authenticatable implements JWTSubject
     public function products() {
         return $this->belongsToMany(Product::class);
     }
-
+    public function orders() {
+        return $this->hasMany(Order::class);
+    }
     public function isAdmin() {
         return $this->role === self::ADMIN;
+    }
+
+    public function createOrder(): bool
+    {
+        if ((new Order())->createForUser($this)) {
+            $this->products()->each(function ($product) {
+                $product->decrement('quantity', $product->pivot->quantity);
+                $product->save();
+            });
+            $this->products()->detach();
+            return true;
+        }
+        return false;
     }
 
 

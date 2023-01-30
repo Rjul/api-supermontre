@@ -19,10 +19,21 @@ class ProductUserController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function index()
+    public function index(Request $request)
     {
+        if ($request->user() === null) {
+            return response()->json([
+                'status' => 'fail',
+                'message' => 'You can not view any product user'
+            ], 401);
+        }
+        if ($request->user()->isAdmin()) {
+            return response()->json(
+                ProductUser::with('product')->get()->toArray()
+            );
+        }
         return response()->json(
-           ProductUser::ownedBy(User::find(3))->with('product')->get()->toArray()
+           ProductUser::ownedBy($request->user()->id)->with('product')->get()->toArray()
         );
     }
 
@@ -34,10 +45,27 @@ class ProductUserController extends Controller
      */
     public function store(ProductUserRequest $request)
     {
-        (new ProductUser())->fill($request->validated())->saveOrFail();
+        if ($request->user() === null) {
+            return response()->json([
+                'status' => 'fail',
+                'message' => 'You can not create product user, please login'
+            ], 401);
+        }
+        if ($request->user()->id !== (int) $request->get('user_id')) {
+            return response()->json([
+                'status' => 'fail',
+                'message' => 'You can not create for other user'
+            ], 401);
+        }
+        if ((new ProductUser())->fill($request->validated())->saveOrFail()) {
+            return response()->json([
+                'status' => 'ok'
+            ], 201);
+        }
         return response()->json([
-            'status' => 'ok'
-        ]);
+            'status' => 'fail',
+            'message' => 'Can not create product user'
+        ], 500);
     }
 
     /**
@@ -46,8 +74,20 @@ class ProductUserController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\JsonResponse
      */
-    public function show(ProductUser $productUser)
+    public function show(Request $request, ProductUser $productUser)
     {
+        if ($request->user() === null) {
+            return response()->json([
+                'status' => 'fail',
+                'message' => 'You can not view this product user, please login'
+            ], 401);
+        }
+        if ($productUser->user_id !== $request->user()->id) {
+            return response()->json([
+                'status' => 'fail',
+                'message' => 'You can not view this product user'
+            ], 401);
+        }
         return response()->json(
             $productUser->toArray()
         );
@@ -62,6 +102,18 @@ class ProductUserController extends Controller
      */
     public function update(ProductUserRequest $request, ProductUser $productUser)
     {
+        if ($request->user() === null) {
+            return response()->json([
+                'status' => 'fail',
+                'message' => 'You can not update this product user, please login'
+            ], 401);
+        }
+        if ($request->user()->id !== $productUser->user_id) {
+            return response()->json([
+                'status' => 'fail',
+                'message' => 'You can not update this product user'
+            ], 401);
+        }
         $productUser->forceFill($request->validated())->updateOrFail();
         return response()->json([
             'status' => 'ok'
@@ -74,12 +126,24 @@ class ProductUserController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\JsonResponse
      */
-    public function destroy(ProductUser $productUser)
+    public function destroy(Request $request, ProductUser $productUser)
     {
+        if ($request->user() === null) {
+            return response()->json([
+                'status' => 'fail',
+                'message' => 'You can not delete this product user, please login'
+            ], 401);
+        }
+        if ($request->user()->id !== $productUser->user_id) {
+            return response()->json([
+                'status' => 'fail',
+                'message' => 'You can not delete this product user'
+            ], 401);
+        }
         $productUser->deleteOrFail();
         return response()->json([
             'status' => 'ok'
-        ]);
+        ], 204);
 
     }
 }

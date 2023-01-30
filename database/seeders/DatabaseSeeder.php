@@ -44,5 +44,7 @@ class DatabaseSeeder extends Seeder
                 'quantity' => fake()->numberBetween(1,4)
             ],
         ))->create();
+
+
     }
 }

@@ -28,11 +28,17 @@ class CategoryController extends Controller
      */
     public function store(NewCategoryResquest $request)
     {
+        if ($request->user() === null || $request->user()->cannot('create', new Category() )) {
+            return response()->json([
+                'status' => $request->user(),
+                'message' => 'You can not create category'
+            ], 401);
+        }
         $product = (new Category())->fill($request->validated());
         $product->saveOrFail();
         return response()->json([
             'status' => 'ok'
-        ]);
+        ], 201);
     }
 
     /**
@@ -58,6 +64,12 @@ class CategoryController extends Controller
      */
     public function update(Category $category, UpdateCategoryResquest $request)
     {
+        if ($request->user() === null || $request->user()->cannot('update', Category::class)) {
+            return response()->json([
+                'status' => 'fail',
+                'message' => 'You can not update category'
+            ], 401);
+        }
         $category->forceFill($request->validated())->updateOrFail();
 
         return response()->json([
@@ -72,18 +84,24 @@ class CategoryController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\JsonResponse
      */
-    public function destroy(Category $category)
+    public function destroy(Request $request, Category $category)
     {
+        if ($request->user() === null || $request->user()->cannot('delete', Category::class)) {
+            return response()->json([
+                'status' => 'fail',
+                'message' => 'You can not destroy category'
+            ], 401);
+        }
         if (!$category->products->isEmpty()) {
             return \response()->json([
                 'status' => 'fail',
                 'message' => 'Category has products, can not delete'
-            ], 500);
+            ], 409);
         }
         $category->deleteOrFail();
 
         return \response()->json([
             'status' => 'ok'
-        ]);
+        ],204);
     }
 }

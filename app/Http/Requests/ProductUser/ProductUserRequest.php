@@ -26,8 +26,8 @@ class ProductUserRequest extends FormRequest
     public function rules()
     {
         return [
-            'user_id' => ['required', 'exists:'.User::class],
-            'product_id' => ['required', 'exists:'.Product::class],
+            'user_id' => ['required', 'exists:'.User::class.',id'],
+            'product_id' => ['required', 'exists:'.Product::class.',id'],
             'quantity' => ['required', 'numeric', 'integer'],
         ];
     }

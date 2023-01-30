@@ -28,11 +28,11 @@ class ProductController extends Controller
      */
     public function store(NewProductRequest $request)
     {
-        if ($request->user === null || $request->user()->cannot('create')) {
+        if ($request->user() === null || $request->user()->cannot('create' , new Product())) {
             return response()->json([
                 'status' => 'fail',
                 'message' => 'You are not authorized to create a product'
-            ]);
+            ], 401);
         }
 
         $imageName = time().'_'.$request->image->getClientOriginalName();
@@ -43,7 +43,7 @@ class ProductController extends Controller
         $product->saveOrFail();
         return response()->json([
             'status' => 'ok'
-        ]);
+        ], 201);
     }
 
     /**
@@ -112,6 +112,6 @@ class ProductController extends Controller
 
         return \response()->json([
             'status' => 'ok'
-        ]);
+        ], 204);
     }
 }
